@@ -1,35 +1,82 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 
+// (async () => {
+//   const browser = await puppeteer.launch();
+//   const page = await browser.newPage();
+//   await page.goto("https://www.olx.com.br/");
+
+//   const titleList = await page.evaluate(() => {
+//     const nodeList = document.querySelectorAll(
+//       `.grid-item img,
+//       .grid-item .Item__PricingContainer-sc-158lq6k-3.fxjGmd span`
+//     );
+//     const imgArray = [...nodeList];
+
+//     const titleList = imgArray.map((img, span) => {
+//       return {
+//         src: img.src,
+//         alt: img.alt,
+//         text: span.textContent,
+//       };
+//     });
+
+//     return titleList;
+//   });
+
+//   fs.writeFile("instagram.json", JSON.stringify(titleList, null, 2), (err) => {
+//     if (err) throw new Error("something went wrong");
+
+//     console.log("Well done!");
+//   });
+//   await browser.close();
+// })();
+
 (async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.goto("https://instagram.com/rocketseat_oficial");
+  await page.goto("https://www.olx.com.br/");
 
-  const imgList = await page.evaluate(() => {
-    //toda essa função será executada no browser
+  const name = await page.$eval(
+    ".Item__ImageContainer-sc-158lq6k-1 img",
+    (el) => {
+      return { src: el.src, alt: el.alt };
+    }
+  );
 
-    //vamos pegar todas as imagens que estão na parte de posts
-    const nodeList = document.querySelectorAll("article img");
+  const price = await page.$eval(
+    ".Item__PricingContainer-sc-158lq6k-3.fxjGmd",
+    (el) => {
+      return { text: el.textContent };
+    }
+  );
 
-    //transformar o NodeList em array
-    const imgArray = [...nodeList];
+  // const name = await page.evaluate(() => {
+  //   const nodeList = document.querySelectorAll(".grid-item img");
+  //   const imgArray = [...nodeList];
+  //   const imgList = imgArray.map(({ src }) => ({ src }));
+  //   return imgList;
+  // });
 
-    //transformar os nodes(elementos html) em objetos javascript
-    const imgList = imgArray.map(({ src }) => ({ src }));
+  // const price = await page.evaluate(() => {
+  //   const nodeList = document.querySelectorAll(
+  //     ".Item__PricingContainer-sc-158lq6k-3.fxjGmd"
+  //   );
+  //   const priceArray = [...nodeList];
+  //   const priceList = priceArray.map((el) => {
+  //     return { el: el.textContent };
+  //   });
+  //   return priceList;
+  // });
 
-    //colocar para fora da função
-    return imgList;
-  });
+  const product = {
+    name,
+    price,
+  };
 
-  //escrever os dados em um arquivo local
-
-  fs.writeFile("instagram.json", JSON.stringify(imgList, null, 2), (err) => {
+  fs.writeFile("instagram.json", JSON.stringify(product, null, 2), (err) => {
     if (err) throw new Error("something went wrong");
-
-    console.log("Well done!");
   });
+
   await browser.close();
 })();
-
-//funnção autoexecutável, mais rápida do que fazer uma função e rodar dps
